@@ -1,4 +1,15 @@
 import streamlit as st
+from pathlib import Path
+import joblib
+import pandas as pd
+
+MODEL_PATH = Path(__file__).parent / "model" / "model.joblib"
+
+@st.cache_resource
+def load_model():
+    if MODEL_PATH.exists():
+        return joblib.load(MODEL_PATH)
+    return None
 
 st.set_page_config(page_title="Philly Home Price Predictor", page_icon="🏠")
 
@@ -49,9 +60,27 @@ with st.form("predict_form"):
     submitted = st.form_submit_button("Predict price", type="primary")
 
 if submitted:
-    price = living_area * 180 + bathrooms * 40000 + garage_spaces * 30000 + (40000 if central_air else 0)
-    st.success(f"Estimated price: ${price:,.0f}")
-    st.caption("This is a placeholder estimate. The real model will be connected soon.")
+    model = load_model()
+    if model is None:
+        price = living_area * 180 + bathrooms * 40000 + garage_spaces * 30000 + (40000 if central_air else 0)
+        st.success(f"Estimated price: ${price:,.0f}")
+        st.caption("This is a placeholder estimate. The real model will be connected soon.")
+    else:
+        X = pd.DataFrame([{
+            "zip_code": zip_code,
+            "total_livable_area": living_area,
+            "number_of_bedrooms": bedrooms,
+            "number_of_bathrooms": bathrooms,
+            "year_built": year_built,
+            "home_type": home_type,
+            "interior_condition": CONDITIONS[interior],
+            "exterior_condition": CONDITIONS[exterior],
+            "number_stories": stories,
+            "garage_spaces": garage_spaces,
+            "central_air": "Y" if central_air else "N",
+        }])
+        price = model.predict(X)[0]
+        st.success(f"Estimated price: ${price:,.0f}")
 
 with st.expander("About this tool"):
     st.write(
