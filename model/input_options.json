@@ -1,0 +1,137 @@
+{
+  "zip_code": [
+    "19102",
+    "19103",
+    "19104",
+    "19106",
+    "19107",
+    "19111",
+    "19114",
+    "19115",
+    "19116",
+    "19118",
+    "19119",
+    "19120",
+    "19121",
+    "19122",
+    "19123",
+    "19124",
+    "19125",
+    "19126",
+    "19127",
+    "19128",
+    "19129",
+    "19130",
+    "19131",
+    "19132",
+    "19133",
+    "19134",
+    "19135",
+    "19136",
+    "19137",
+    "19138",
+    "19139",
+    "19140",
+    "19141",
+    "19142",
+    "19143",
+    "19144",
+    "19145",
+    "19146",
+    "19147",
+    "19148",
+    "19149",
+    "19150",
+    "19151",
+    "19152",
+    "19153",
+    "19154"
+  ],
+  "interior_condition": [
+    "0",
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8"
+  ],
+  "exterior_condition": [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7"
+  ],
+  "central_air": [
+    "N",
+    "Y"
+  ],
+  "quality_grade": [
+    "3",
+    "4",
+    "5",
+    "6",
+    "A",
+    "A+",
+    "A-",
+    "B",
+    "B+",
+    "B-",
+    "C",
+    "C+",
+    "C-",
+    "D",
+    "D+",
+    "D-",
+    "E",
+    "E+",
+    "E-",
+    "S",
+    "S-",
+    "X",
+    "X-"
+  ],
+  "numeric_ranges_in_training_data": {
+    "total_livable_area": {
+      "min": 0.0,
+      "median": 1230.0,
+      "max": 35523.0
+    },
+    "number_of_bedrooms": {
+      "min": 0.0,
+      "median": 3.0,
+      "max": 12.0
+    },
+    "number_of_bathrooms": {
+      "min": 0.0,
+      "median": 1.0,
+      "max": 23.0
+    },
+    "year_built": {
+      "min": 1717.0,
+      "median": 1925.0,
+      "max": 2026.0
+    },
+    "number_stories": {
+      "min": 1.0,
+      "median": 2.0,
+      "max": 5.0
+    },
+    "garage_spaces": {
+      "min": 0.0,
+      "median": 0.0,
+      "max": 24.0
+    },
+    "sale_year": {
+      "min": 2024.0,
+      "median": 2025.0,
+      "max": 2026.0
+    }
+  },
+  "note": "Values seen in the model's data (single family sales 2024-2026, bundled sales removed). Text inputs must be sent as strings. Blank/unknown inputs are allowed: the model fills them in."
+}
