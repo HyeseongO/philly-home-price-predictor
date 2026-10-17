@@ -13,12 +13,13 @@ NOT_SURE = "Not sure"
 
 CONDITIONS = {
     NOT_SURE: np.nan,
-    "New construction": "1",
+    "Code 1": "1",
     "Rehabbed": "2",
     "Above average": "3",
     "Average": "4",
     "Below average": "5",
-    "Poor / vacant": "6",
+    "Code 6": "6",
+    "Code 7": "7",
 }
 CENTRAL_AIR = {NOT_SURE: np.nan, "Yes": "Y", "No": "N"}
 GRADES = [NOT_SURE, "A+", "A", "A-", "B+", "B", "B-", "C+", "C", "C-", "D+", "D", "D-"]
