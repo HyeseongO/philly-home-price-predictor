@@ -50,7 +50,7 @@ The full pipeline (missing value handling, category encoding and the model) is s
 | Target | Sale price (US dollars) |
 | Test performance | MAE $77,149 · RMSE $167,630 · R² 0.782 (5,915 test homes) |
 
-The modeling notebook was last run in Colab with scikit-learn 1.6.1. The website's model file was saved with scikit-learn 1.9.1, and both give identical predictions.
+The modeling notebook was last run in Colab with scikit-learn 1.9.1, the same version as the website's model file.
 
 ## How to reproduce the analysis
 
