@@ -21,6 +21,10 @@ CONDITIONS = {
     "Code 6": "6",
     "Code 7": "7",
 }
+CONDITION_HELP = (
+    "Codes 1, 6, and 7 are City of Philadelphia (OPA) condition codes "
+    "whose official labels we are still confirming. Choose 'Not sure' if unknown."
+)
 CENTRAL_AIR = {NOT_SURE: np.nan, "Yes": "Y", "No": "N"}
 GRADES = [NOT_SURE, "A+", "A", "A-", "B+", "B", "B-", "C+", "C", "C-", "D+", "D", "D-"]
 
@@ -54,8 +58,8 @@ with st.form("predict_form"):
     with col2:
         year_built = st.number_input("Year built", min_value=1700, max_value=2026, value=1925)
         stories = st.selectbox("Stories", [1, 2, 3, 4], index=1)
-        interior = st.selectbox("Interior condition", list(CONDITIONS), index=4)
-        exterior = st.selectbox("Exterior condition", list(CONDITIONS), index=4)
+        interior = st.selectbox("Interior condition", list(CONDITIONS), index=4, help=CONDITION_HELP)
+        exterior = st.selectbox("Exterior condition", list(CONDITIONS), index=4, help=CONDITION_HELP)
 
     with st.expander("More details (optional)"):
         col3, col4 = st.columns(2)
