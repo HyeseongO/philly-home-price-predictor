@@ -4,8 +4,11 @@ REPO = "https://github.com/HyeseongO/philly-home-price-predictor"
 COLAB = "https://colab.research.google.com/github/HyeseongO/philly-home-price-predictor/blob/main/notebook/"
 OPA_DATA = "https://opendataphilly.org/datasets/philadelphia-properties-and-assessment-history"
 
-INTERVIEWEES = []
-INTERVIEW_CHANGES = []
+INTERVIEWEES = ["two previous home buyers", "a potential first-time buyer", "a previous home seller", "a realtor"]
+INTERVIEW_CHANGES = [
+    "All five asked for a price range, not just one number, so every estimate now comes with a likely range.",
+    "Three wanted to know how reliable the estimate is, such as how often it misses and why it might be off, so this page shows its accuracy on homes it never saw and its limitations.",
+]
 
 st.title("About This Tool")
 st.write("How the estimate is made, what data it learned from, and how far you can trust it.")
@@ -13,9 +16,9 @@ st.write("How the estimate is made, what data it learned from, and how far you c
 st.header("How accurate is it?")
 st.write("We tested the model on 5,915 Philadelphia home sales that it never saw during training.")
 col1, col2, col3, col4 = st.columns(4)
-col1.metric("Typical error", "$44,579", help="Median absolute error: half of the test homes were off by less than this.")
+col1.metric("Typical error", "$44,432", help="Median absolute error: half of the test homes were off by less than this.")
 col2.metric("Within 20% of price", "54%", help="Share of test homes whose estimate was within 20% of the actual sale price.")
-col3.metric("Average error (MAE)", "$77,149", help="Mean absolute error across all test homes.")
+col3.metric("Average error (MAE)", "$77,211", help="Mean absolute error across all test homes.")
 col4.metric("R²", "0.78", help="Share of the variation in sale prices the model explains (1.0 is perfect).")
 st.caption("Use the estimate as a starting point alongside comparable sales, not as a formal appraisal.")
 
@@ -39,6 +42,11 @@ st.write(
     "It uses 12 inputs: living area, bedrooms, bathrooms, year built, stories, garage spaces, ZIP code, "
     "interior condition, exterior condition, central air, quality grade, and sale year."
 )
+st.write(
+    "ZIP code and sale year enter the model as categories (ZIP and year fixed effects), so each ZIP and each year "
+    "gets its own price level. The likely range shown with each estimate covers the middle 80% of how test homes "
+    "with a similar estimate actually sold."
+)
 
 st.header("Limitations")
 st.markdown(
@@ -52,7 +60,7 @@ st.markdown(
 
 if INTERVIEWEES:
     st.header("What we heard from users")
-    st.write("Before building the tool, we interviewed: " + ", ".join(INTERVIEWEES) + ".")
+    st.write("We interviewed five people: " + ", ".join(INTERVIEWEES) + ".")
     if INTERVIEW_CHANGES:
         st.write("What we changed because of those conversations:")
         st.markdown("\n".join(f"{i}. {change}" for i, change in enumerate(INTERVIEW_CHANGES, start=1)))

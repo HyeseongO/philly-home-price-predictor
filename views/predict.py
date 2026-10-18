@@ -7,7 +7,7 @@ import pandas as pd
 import streamlit as st
 
 MODEL_DIR = Path(__file__).parent.parent / "model"
-SALE_YEAR = 2026
+SALE_YEAR = "2026"  # sale year is a category in the model (year fixed effects)
 CATEGORICAL = ["zip_code", "interior_condition", "exterior_condition", "central_air", "quality_grade"]
 NOT_SURE = "Not sure"
 
@@ -32,6 +32,18 @@ GRADES = [NOT_SURE, "A+", "A", "A-", "B+", "B", "B-", "C+", "C", "C-", "D+", "D"
 @st.cache_resource
 def load_model():
     return joblib.load(MODEL_DIR / "model.joblib")["model"]
+
+
+@st.cache_data
+def load_range_table():
+    return json.loads((MODEL_DIR / "price_range.json").read_text())["bands"]
+
+
+def price_range(price):
+    """80% range: the 10th to 90th percentile of actual/predicted for test homes with a similar estimate."""
+    for band in load_range_table():
+        if band["band_high"] is None or price < band["band_high"]:
+            return price * band["low_mult"], price * band["high_mult"]
 
 
 @st.cache_data
@@ -88,7 +100,13 @@ if submitted:
     }])
     X[CATEGORICAL] = X[CATEGORICAL].astype(object)
     price = model.predict(X)[0]
+    low, high = price_range(price)
     st.success(f"Estimated price: ${price:,.0f}")
+    st.metric("Likely range", f"${low:,.0f} to ${high:,.0f}")
+    st.caption(
+        "About 8 in 10 test homes with a similar estimate sold within this range. "
+        "Use it as a starting point alongside comparable sales, not as an appraisal."
+    )
 
 with st.expander("About this tool"):
     st.write(

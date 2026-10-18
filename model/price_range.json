@@ -1,0 +1,54 @@
+{
+  "level": 0.8,
+  "method": "10th and 90th percentile of actual/predicted on the test homes, by predicted price band",
+  "bands": [
+    {
+      "band_low": 0,
+      "band_high": 100000,
+      "test_homes": 478,
+      "low_mult": 0.483,
+      "high_mult": 1.864,
+      "holdout_coverage": 0.799
+    },
+    {
+      "band_low": 100000,
+      "band_high": 200000,
+      "test_homes": 1529,
+      "low_mult": 0.437,
+      "high_mult": 1.519,
+      "holdout_coverage": 0.78
+    },
+    {
+      "band_low": 200000,
+      "band_high": 300000,
+      "test_homes": 1519,
+      "low_mult": 0.564,
+      "high_mult": 1.31,
+      "holdout_coverage": 0.794
+    },
+    {
+      "band_low": 300000,
+      "band_high": 500000,
+      "test_homes": 1484,
+      "low_mult": 0.692,
+      "high_mult": 1.273,
+      "holdout_coverage": 0.769
+    },
+    {
+      "band_low": 500000,
+      "band_high": 1000000,
+      "test_homes": 746,
+      "low_mult": 0.698,
+      "high_mult": 1.316,
+      "holdout_coverage": 0.748
+    },
+    {
+      "band_low": 1000000,
+      "band_high": null,
+      "test_homes": 159,
+      "low_mult": 0.666,
+      "high_mult": 1.444,
+      "holdout_coverage": 0.754
+    }
+  ]
+}
