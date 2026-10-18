@@ -76,7 +76,7 @@ with st.form("predict_form"):
     with st.expander("More details (optional)"):
         col3, col4 = st.columns(2)
         with col3:
-            garage_spaces = st.number_input("Garage spaces", min_value=0, max_value=3, value=None, placeholder=NOT_SURE)
+            garage_spaces = st.selectbox("Garage spaces", [NOT_SURE, 0, 1, 2, 3])
             central_air = st.selectbox("Central air", list(CENTRAL_AIR))
         with col4:
             quality_grade = st.selectbox("Quality grade (city assessment)", GRADES)
@@ -90,7 +90,7 @@ if submitted:
         "number_of_bathrooms": bathrooms,
         "year_built": year_built,
         "number_stories": stories,
-        "garage_spaces": np.nan if garage_spaces is None else garage_spaces,
+        "garage_spaces": np.nan if garage_spaces == NOT_SURE else garage_spaces,
         "sale_year": SALE_YEAR,
         "zip_code": zip_code,
         "interior_condition": CONDITIONS[interior],
