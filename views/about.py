@@ -69,7 +69,7 @@ st.header("Reproduce our work")
 st.markdown(
     f"""
 - [GitHub repository]({REPO})
-- Notebooks in Google Colab: [data cleaning]({COLAB}02_data_cleaning.ipynb) · [exploratory analysis]({COLAB}Group_Project.ipynb) · [modeling]({COLAB}Group_Project_Modeling.ipynb)
+- Notebooks in Google Colab: [data cleaning]({COLAB}02_data_cleaning.ipynb) · [exploratory analysis]({COLAB}Group_Project.ipynb) · [modeling]({COLAB}Group_Project_Modeling.ipynb) · [explanation model]({COLAB}06_explanation_model.ipynb)
 - [Cleaned dataset (CSV)]({REPO}/blob/main/data/philly_sf_sales_clean.csv)
 """
 )

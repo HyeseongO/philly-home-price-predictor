@@ -24,6 +24,7 @@ Made by Owen, Hyeseong and Ian for BUSA 310 Business Analytics III (Group Projec
 | Colab: data cleaning | [Open in Colab](https://colab.research.google.com/github/HyeseongO/philly-home-price-predictor/blob/main/notebook/02_data_cleaning.ipynb) |
 | Colab: exploratory analysis | [Open in Colab](https://colab.research.google.com/github/HyeseongO/philly-home-price-predictor/blob/main/notebook/Group_Project.ipynb) |
 | Colab: modeling | [Open in Colab](https://colab.research.google.com/github/HyeseongO/philly-home-price-predictor/blob/main/notebook/Group_Project_Modeling.ipynb) |
+| Colab: explanation model | [Open in Colab](https://colab.research.google.com/github/HyeseongO/philly-home-price-predictor/blob/main/notebook/06_explanation_model.ipynb) |
 | Raw dataset | [Philadelphia Properties and Assessment History (OpenDataPhilly)](https://opendataphilly.org/datasets/philadelphia-properties-and-assessment-history) |
 | Cleaned dataset | [`data/philly_sf_sales_clean.csv`](data/philly_sf_sales_clean.csv) |
 
@@ -39,6 +40,16 @@ Made by Owen, Hyeseong and Ian for BUSA 310 Business Analytics III (Group Projec
 | Modeling rows | 29,572 (bundled sales of several parcels at one price removed) |
 | Privacy | Owner names and mailing addresses removed |
 
+The explanation model merges in neighborhood data by ZIP code:
+
+| Data | Source | Period |
+|---|---|---|
+| Median household income, % owner occupied, % bachelor's degree or higher, poverty rate, population | U.S. Census ACS 5-year estimates by ZCTA, via the Census Reporter API | 2020 to 2024 |
+| Violent and property crime per 1,000 residents per year | Philadelphia Police incidents (`incidents_part1_part2`, Carto API) | 2024 to 2025 |
+| Elementary school PSSA ELA proficiency (% proficient or advanced, grades 3-8) | School District of Philadelphia catchments and SPREE | School year 2024-25 |
+
+Census reports ZCTAs, which approximate ZIP codes. Each crime incident is assigned to the ZIP of the nearest home in our data, and each home gets the score of its elementary catchment school.
+
 ## Model
 
 The website uses a Random Forest with ZIP and year fixed effects: ZIP code and sale year enter the model as categories, so each ZIP and each year gets its own price level. It was trained on a random 80/20 train/test split (`random_state=42`).
@@ -52,6 +63,8 @@ The full pipeline (missing value handling, category encoding and the model) is s
 
 Each estimate also shows a likely range: the middle 80% of how test homes with a similar estimate actually sold. On held-out test homes, the range contained the actual price 77.8% of the time.
 
+The Predict page also shows the estimate for each sale year in the data (2024, 2025 and 2026). This shows how the estimate changes with the sale year; it is not a forecast.
+
 The modeling notebook was last run in Colab with scikit-learn 1.9.1, the same version as the website's model file.
 
 ## How to reproduce the analysis
@@ -61,8 +74,9 @@ Run the notebooks in this order. In Google Colab, use **Runtime > Run all**.
 1. `notebook/02_data_cleaning.ipynb`: raw OPA file to the cleaned dataset
 2. `notebook/Group_Project.ipynb`: exploratory data analysis and charts
 3. `notebook/Group_Project_Modeling.ipynb`: model comparison, evaluation, and the final website model with year and ZIP fixed effects (section 11)
+4. `notebook/06_explanation_model.ipynb`: explanation model of price differences across ZIP codes (neighborhood data plus year fixed effects, no ZIP fixed effects)
 
-The data cleaning notebook needs the raw OPA file: download it from OpenDataPhilly and upload it to `data/raw/` in Colab. The other notebooks load the cleaned dataset directly from this repository, so no upload is needed.
+The data cleaning notebook needs the raw OPA file: download it from OpenDataPhilly and upload it to `data/raw/` in Colab. The other notebooks load the cleaned dataset directly from this repository, so no upload is needed. The explanation model notebook also downloads the neighborhood data above, so it needs an internet connection.
 
 ## How to run the website locally
 
