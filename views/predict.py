@@ -102,10 +102,21 @@ if submitted:
     price = model.predict(X)[0]
     low, high = price_range(price)
     st.success(f"Estimated price: ${price:,.0f}")
-    st.metric("Likely range", f"${low:,.0f} to ${high:,.0f}")
+    st.metric("Likely range", f"\\${low:,.0f} to \\${high:,.0f}")
     st.caption(
         "About 8 in 10 test homes with a similar estimate sold within this range. "
         "Use it as a starting point alongside comparable sales, not as an appraisal."
+    )
+
+    years = ["2024", "2025", "2026"]
+    by_year = model.predict(pd.concat([X.assign(sale_year=year) for year in years], ignore_index=True))
+    st.subheader("Estimated price by sale year")
+    for col, year, value, previous in zip(st.columns(len(years)), years, by_year, [None, *by_year[:-1]]):
+        delta = None if previous is None else f"{'+' if value >= previous else '-'}${abs(value - previous):,.0f}"
+        col.metric(year, f"${value:,.0f}", delta=delta)
+    st.caption(
+        "How the estimate changes with the sale year, using sales from January 2024 to September 2026. "
+        "This is not a forecast of future prices."
     )
 
 with st.expander("About this tool"):
