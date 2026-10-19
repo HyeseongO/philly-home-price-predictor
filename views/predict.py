@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 
+import altair as alt
 import joblib
 import numpy as np
 import pandas as pd
@@ -10,6 +11,7 @@ MODEL_DIR = Path(__file__).parent.parent / "model"
 SALES_PATH = Path(__file__).parent.parent / "data" / "philly_sf_sales_clean.csv"
 NEIGHBORHOOD_PATH = Path(__file__).parent.parent / "data" / "zip_features.csv"
 SALE_YEAR = "2026"  # sale year is a category in the model (year fixed effects)
+ACCENT, RANGE_COLOR, LABEL_COLOR = "#3D6CB5", "#7C9CC9", "#8A96A6"  # readable on the light and dark themes
 CATEGORICAL = ["zip_code", "interior_condition", "exterior_condition", "central_air", "quality_grade"]
 NOT_SURE = "Not sure"
 
@@ -54,6 +56,20 @@ def price_range(price):
     for band in load_range_table():
         if band["band_high"] is None or price < band["band_high"]:
             return price * band["low_mult"], price * band["high_mult"]
+
+
+def range_chart(low, price, high):
+    """Likely range as a bar, the estimate as a dot, and the two ends labeled."""
+    pad = (high - low) * 0.06
+    x = alt.X("x:Q", scale=alt.Scale(domain=[low - pad, high + pad]), axis=None)
+    bar = alt.Chart(pd.DataFrame({"x": [low], "x2": [high]})).mark_bar(height=14, cornerRadius=7, color=RANGE_COLOR, opacity=0.45).encode(x=x, x2="x2:Q")
+    dot = alt.Chart(pd.DataFrame({"x": [price]})).mark_point(filled=True, size=240, opacity=1, color=ACCENT).encode(x=x)
+    ends = [
+        alt.Chart(pd.DataFrame({"x": [value], "label": [f"${value:,.0f}"]}))
+        .mark_text(align=align, dy=24, fontSize=13, color=LABEL_COLOR).encode(x=x, text="label:N")
+        for value, align in [(low, "left"), (high, "right")]
+    ]
+    return alt.layer(bar, dot, *ends).properties(height=60).configure_view(stroke=None)
 
 
 @st.cache_data
@@ -138,63 +154,68 @@ if submitted:
     X[CATEGORICAL] = X[CATEGORICAL].astype(object)
     price = model.predict(X)[0]
     low, high = price_range(price)
-    st.success(f"Estimated price: ${price:,.0f}")
-    st.metric("Likely range", f"\\${low:,.0f} to \\${high:,.0f}")
-    st.caption(
-        "About 8 in 10 test homes with a similar estimate sold within this range. "
-        "Use it as a starting point alongside comparable sales, not as an appraisal."
-    )
-
-    years = ["2024", "2025", "2026"]
-    by_year = model.predict(pd.concat([X.assign(sale_year=year) for year in years], ignore_index=True))
-    st.subheader("Estimated price by sale year")
-    for col, year, value, previous in zip(st.columns(len(years)), years, by_year, [None, *by_year[:-1]]):
-        delta = None if previous is None else f"{'+' if value >= previous else '-'}${abs(value - previous):,.0f}"
-        col.metric(year, f"${value:,.0f}", delta=delta)
-    st.caption(
-        "How the estimate changes with the sale year, using sales from January 2024 to September 2026. "
-        "This is not a forecast of future prices."
-    )
-
-    comps, spread = similar_sales(zip_code, living_area, bedrooms)
-    st.subheader("Recent sales of similar homes")
-    if comps.empty:
-        st.write(f"No recent sales of a similar size were found in ZIP {zip_code}.")
-    else:
-        st.write(
-            f"The {len(comps)} most recent sales in ZIP {zip_code} with "
-            f"{living_area * (1 - spread):,.0f} to {living_area * (1 + spread):,.0f} sq ft of living area."
-        )
-        st.dataframe(
-            pd.DataFrame({
-                "Sold": comps["sale_date"].dt.strftime("%b %Y"),
-                "Street": comps["location"].str.replace(r"^\S+\s+", "", regex=True),
-                "Sale price": comps["sale_price"].map("${:,.0f}".format),
-                "Sq ft": comps["total_livable_area"].map("{:,.0f}".format),
-                "Beds": comps["number_of_bedrooms"].astype("Int64"),
-                "Baths": comps["number_of_bathrooms"].astype("Int64"),
-                "Built": comps["year_built"].astype("Int64"),
-            }),
-            hide_index=True,
-            width="stretch",
-        )
+    with st.container(border=True):
+        st.metric("Estimated price", f"${price:,.0f}")
+        st.altair_chart(range_chart(low, price, high), width="stretch")
         st.caption(
-            "Recorded sales from City of Philadelphia (OPA) records, January 2024 to September 2026. "
-            "House numbers are hidden. Sales far below the city's assessed value are left out because "
-            "they may not be regular market sales."
+            f"Likely range: \\${low:,.0f} to \\${high:,.0f}. About 8 in 10 test homes with a similar estimate "
+            "sold within this range. Use it as a starting point alongside comparable sales, not as an appraisal."
         )
 
-    neighborhoods = load_neighborhoods()
-    if zip_code in neighborhoods.index:
-        area, city = neighborhoods.loc[zip_code], neighborhoods.median(numeric_only=True)
-        st.subheader(f"About ZIP {zip_code}")
-        for start in range(0, len(NEIGHBORHOOD_CARDS), 3):
-            for col, (label, key, fmt, source) in zip(st.columns(3), NEIGHBORHOOD_CARDS[start:start + 3]):
-                col.metric(label, fmt.format(area[key]), help=f"{source} Median across our 46 ZIP codes: {fmt.format(city[key])}.")
+    by_year_tab, sales_tab, zip_tab = st.tabs(["Price by sale year", "Similar recent sales", f"About ZIP {zip_code}"])
+
+    with by_year_tab:
+        years = ["2024", "2025", "2026"]
+        by_year = model.predict(pd.concat([X.assign(sale_year=year) for year in years], ignore_index=True))
+        for col, year, value, previous in zip(st.columns(len(years)), years, by_year, [None, *by_year[:-1]]):
+            delta = None if previous is None else f"{'+' if value >= previous else '-'}${abs(value - previous):,.0f}"
+            col.metric(year, f"${value:,.0f}", delta=delta)
         st.caption(
-            "Neighborhood context for the selected ZIP code. Crime rates are per 1,000 residents, "
-            "so busy areas with few residents, such as Center City, can show high rates."
+            "How the estimate changes with the sale year, using sales from January 2024 to September 2026. "
+            "This is not a forecast of future prices."
         )
+
+    with sales_tab:
+        comps, spread = similar_sales(zip_code, living_area, bedrooms)
+        if comps.empty:
+            st.write(f"No recent sales of a similar size were found in ZIP {zip_code}.")
+        else:
+            st.write(
+                f"The {len(comps)} most recent sales in ZIP {zip_code} with "
+                f"{living_area * (1 - spread):,.0f} to {living_area * (1 + spread):,.0f} sq ft of living area."
+            )
+            st.dataframe(
+                pd.DataFrame({
+                    "Sold": comps["sale_date"].dt.strftime("%b %Y"),
+                    "Street": comps["location"].str.replace(r"^\S+\s+", "", regex=True),
+                    "Sale price": comps["sale_price"].map("${:,.0f}".format),
+                    "Sq ft": comps["total_livable_area"].map("{:,.0f}".format),
+                    "Beds": comps["number_of_bedrooms"].astype("Int64"),
+                    "Baths": comps["number_of_bathrooms"].astype("Int64"),
+                    "Built": comps["year_built"].astype("Int64"),
+                }),
+                hide_index=True,
+                width="stretch",
+            )
+            st.caption(
+                "Recorded sales from City of Philadelphia (OPA) records, January 2024 to September 2026. "
+                "House numbers are hidden. Sales far below the city's assessed value are left out because "
+                "they may not be regular market sales."
+            )
+
+    with zip_tab:
+        neighborhoods = load_neighborhoods()
+        if zip_code in neighborhoods.index:
+            area, city = neighborhoods.loc[zip_code], neighborhoods.median(numeric_only=True)
+            for start in range(0, len(NEIGHBORHOOD_CARDS), 3):
+                for col, (label, key, fmt, source) in zip(st.columns(3), NEIGHBORHOOD_CARDS[start:start + 3]):
+                    col.metric(label, fmt.format(area[key]), help=f"{source} Median across our 46 ZIP codes: {fmt.format(city[key])}.")
+            st.caption(
+                "Neighborhood context for the selected ZIP code. Crime rates are per 1,000 residents, "
+                "so busy areas with few residents, such as Center City, can show high rates."
+            )
+        else:
+            st.write(f"No neighborhood data is available for ZIP {zip_code}.")
 
 with st.expander("About this tool"):
     st.write(

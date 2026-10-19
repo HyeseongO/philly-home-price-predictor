@@ -1,0 +1,22 @@
+[theme]
+font = "Plus Jakarta Sans:https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+baseRadius = "0.75rem"
+showWidgetBorder = true
+
+[theme.light]
+primaryColor = "#24508F"
+backgroundColor = "#F6F8FB"
+secondaryBackgroundColor = "#E9EEF5"
+textColor = "#1F2933"
+linkColor = "#24508F"
+borderColor = "#D8E0EA"
+chartCategoricalColors = ["#24508F", "#7C9CC9", "#C9D6EA"]
+
+[theme.dark]
+primaryColor = "#7FA6E0"
+backgroundColor = "#0E1726"
+secondaryBackgroundColor = "#1A2638"
+textColor = "#E6EBF2"
+linkColor = "#9DBBE8"
+borderColor = "#2A3A52"
+chartCategoricalColors = ["#7FA6E0", "#4F78B5", "#2E4566"]
