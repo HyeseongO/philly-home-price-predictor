@@ -50,6 +50,8 @@ The explanation model merges in neighborhood data by ZIP code:
 
 Census reports ZCTAs, which approximate ZIP codes. Each crime incident is assigned to the ZIP of the nearest home in our data, and each home gets the score of its elementary catchment school.
 
+The explanation model notebook saves these ZIP-level figures to `data/zip_features.csv`, which the website uses for the neighborhood information on the Predict page.
+
 ## Model
 
 The website uses a Random Forest with ZIP and year fixed effects: ZIP code and sale year enter the model as categories, so each ZIP and each year gets its own price level. It was trained on a random 80/20 train/test split (`random_state=42`).
@@ -64,6 +66,8 @@ The full pipeline (missing value handling, category encoding and the model) is s
 Each estimate also shows a likely range: the middle 80% of how test homes with a similar estimate actually sold. On held-out test homes, the range contained the actual price 77.8% of the time.
 
 The Predict page also shows the estimate for each sale year in the data (2024, 2025 and 2026). This shows how the estimate changes with the sale year; it is not a forecast.
+
+Below the estimate, the page lists up to five recent sales in the same ZIP code with a similar living area (house numbers hidden, sales far below the city's assessed value left out), and six neighborhood figures for the ZIP code (median income, homeowners, bachelor's degree, violent crime, property crime, school reading), each with the median across our 46 ZIP codes for comparison.
 
 The modeling notebook was last run in Colab with scikit-learn 1.9.1, the same version as the website's model file.
 
@@ -99,14 +103,14 @@ The site opens at http://localhost:8501.
 
 ```
 app.py                  top navigation (entry point for Streamlit)
-views/predict.py        prediction form and model
+views/predict.py        prediction form, model, similar sales and neighborhood info
 views/about.py          accuracy, data, limitations and interviews
 views/team.py           team page
 model/model.joblib      trained pipeline (scikit-learn 1.9.1)
 model/input_options.json  valid dropdown values and numeric ranges
 model/price_range.json  multipliers for the likely price range
 notebook/               cleaning, EDA and modeling notebooks
-data/                   cleaned dataset
+data/                   cleaned dataset and ZIP neighborhood data (zip_features.csv)
 assets/team/            team photos
 requirements.txt        Python packages
 ```

@@ -8,6 +8,8 @@ INTERVIEWEES = ["two previous home buyers", "a potential first-time buyer", "a p
 INTERVIEW_CHANGES = [
     "All five asked for a price range, not just one number, so every estimate now comes with a likely range.",
     "Three wanted to know how reliable the estimate is, such as how often it misses and why it might be off, so this page shows its accuracy on homes it never saw and its limitations.",
+    "Three asked to see recent sales of similar homes nearby, so each estimate now lists the most recent similar sales in the same ZIP code.",
+    "Three mentioned neighborhood factors such as crime, schools, and the surrounding area, so each estimate now shows income, homeownership, education, crime, and school data for the ZIP code.",
 ]
 
 st.title("About This Tool")
@@ -30,6 +32,7 @@ st.markdown(
 - **Sale dates:** January 2024 to September 2026
 - **Sales used for the model:** 29,572
 - **Cleaning:** kept sales above $25,000 and removed bundled sales (several parcels sold at one price)
+- **Neighborhood information:** U.S. Census ACS 2020-2024, Philadelphia Police incidents 2024-2025, and School District of Philadelphia test scores (2024-25), by ZIP code
 """
 )
 
@@ -55,6 +58,7 @@ st.markdown(
 - Estimates assume the home sells in 2026.
 - Condition codes 1, 6, and 7 do not have confirmed labels yet.
 - Inputs left as "Not sure" are filled with typical values from the training data.
+- Neighborhood information is shown for context. The price estimate accounts for location through the ZIP code itself.
 """
 )
 
