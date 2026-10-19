@@ -69,6 +69,8 @@ The Predict page also shows the estimate for each sale year in the data (2024, 2
 
 Below the estimate, the page lists up to five recent sales in the same ZIP code with a similar living area (house numbers hidden, sales far below the city's assessed value left out), and six neighborhood figures for the ZIP code (median income, homeowners, bachelor's degree, violent crime, property crime, school reading), each with the median across our 46 ZIP codes for comparison.
 
+The Insights page lists the most and least expensive ZIP codes by median sale price and shows how much the price changes with each feature, based on the explanation model.
+
 The modeling notebook was last run in Colab with scikit-learn 1.9.1, the same version as the website's model file.
 
 ## How to reproduce the analysis
@@ -104,6 +106,7 @@ The site opens at http://localhost:8501.
 ```
 app.py                  top navigation (entry point for Streamlit)
 views/predict.py        prediction form, model, similar sales and neighborhood info
+views/insights.py       most and least expensive ZIP codes and what changes the price
 views/about.py          accuracy, data, limitations and interviews
 views/team.py           team page
 model/model.joblib      trained pipeline (scikit-learn 1.9.1)
