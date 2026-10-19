@@ -8,6 +8,7 @@ import streamlit as st
 
 MODEL_DIR = Path(__file__).parent.parent / "model"
 SALES_PATH = Path(__file__).parent.parent / "data" / "philly_sf_sales_clean.csv"
+NEIGHBORHOOD_PATH = Path(__file__).parent.parent / "data" / "zip_features.csv"
 SALE_YEAR = "2026"  # sale year is a category in the model (year fixed effects)
 CATEGORICAL = ["zip_code", "interior_condition", "exterior_condition", "central_air", "quality_grade"]
 NOT_SURE = "Not sure"
@@ -28,6 +29,14 @@ CONDITION_HELP = (
 )
 CENTRAL_AIR = {NOT_SURE: np.nan, "Yes": "Y", "No": "N"}
 GRADES = [NOT_SURE, "A+", "A", "A-", "B+", "B", "B-", "C+", "C", "C-", "D+", "D", "D-"]
+NEIGHBORHOOD_CARDS = [
+    ("Median income", "zip_income", "${:,.0f}", "Median household income, U.S. Census ACS 2020-2024."),
+    ("Homeowners", "zip_pct_owner", "{:.0%}", "Share of occupied homes that are owner occupied, U.S. Census ACS 2020-2024."),
+    ("Bachelor's degree", "zip_pct_bachelors", "{:.0%}", "Share of adults 25 and older with a bachelor's degree or higher, U.S. Census ACS 2020-2024."),
+    ("Violent crime", "zip_violent_per_1k", "{:.1f}", "Violent crimes per 1,000 residents per year, Philadelphia Police incidents 2024-2025."),
+    ("Property crime", "zip_property_per_1k", "{:.1f}", "Property crimes per 1,000 residents per year, Philadelphia Police incidents 2024-2025."),
+    ("School reading", "zip_school_score", "{:.0f}%", "Average share of grade 3-8 students proficient or advanced on the PSSA English test at the area's elementary schools, School District of Philadelphia SPREE 2024-25."),
+]
 
 
 @st.cache_resource
@@ -60,6 +69,11 @@ def load_sales():
     sales = pd.read_csv(SALES_PATH, usecols=columns, dtype={"zip_code": str}, parse_dates=["sale_date"])
     keep = (sales["bundle_size"] == 1) & ~sales["flag_vacant"] & (sales["price_to_assessed"] >= 0.5) & (sales["total_livable_area"] > 0)
     return sales[keep]
+
+
+@st.cache_data
+def load_neighborhoods():
+    return pd.read_csv(NEIGHBORHOOD_PATH, dtype={"zip_code": str}).set_index("zip_code")
 
 
 def similar_sales(zip_code, living_area, bedrooms, count=5):
@@ -168,6 +182,18 @@ if submitted:
             "Recorded sales from City of Philadelphia (OPA) records, January 2024 to September 2026. "
             "House numbers are hidden. Sales far below the city's assessed value are left out because "
             "they may not be regular market sales."
+        )
+
+    neighborhoods = load_neighborhoods()
+    if zip_code in neighborhoods.index:
+        area, city = neighborhoods.loc[zip_code], neighborhoods.median(numeric_only=True)
+        st.subheader(f"About ZIP {zip_code}")
+        for start in range(0, len(NEIGHBORHOOD_CARDS), 3):
+            for col, (label, key, fmt, source) in zip(st.columns(3), NEIGHBORHOOD_CARDS[start:start + 3]):
+                col.metric(label, fmt.format(area[key]), help=f"{source} Median across our 46 ZIP codes: {fmt.format(city[key])}.")
+        st.caption(
+            "Neighborhood context for the selected ZIP code. Crime rates are per 1,000 residents, "
+            "so busy areas with few residents, such as Center City, can show high rates."
         )
 
 with st.expander("About this tool"):
